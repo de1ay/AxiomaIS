@@ -8,16 +8,53 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"axioma/conf"
+	"axioma/src"
+	"crypto/tls"
+	"time"
+	"axioma/src/handlers/api/authorization"
+	"axioma/src/handlers"
 )
 
 func main() {
+
 	router := mux.NewRouter()
-	/*
-	main_site := router.Host(conf.DOMAIN).Subrouter()
-	www_site := router.Host("www." + conf.DOMAIN).Subrouter()
-	beta_site := router.Host("beta." + conf.DOMAIN).Subrouter()
-	api_site := router.Host("api." + conf.DOMAIN).Subrouter()
-	*/
+
+	mainSite := router.Host(conf.DOMAIN).Subrouter()
+	wwwSite := router.Host("www." + conf.DOMAIN).Subrouter()
+	apiSite := router.Host("api." + conf.DOMAIN).Subrouter()
+
+	authorization.HandleAuthorization(apiSite)
+	authorization.HandleTokenValidation(apiSite)
+
+	handlers.HandleMainSite(mainSite)
+	handlers.HandleMainSite(wwwSite)
+
+	src.Connection.Connect()
+
+	go HandleTLS(router)
 	http.ListenAndServe(conf.HTTP_PORT, router)
 }
+
+func getTlsConfig() *tls.Config {
+	TlsConfig := &tls.Config{}
+	TlsConfig.Certificates = make([]tls.Certificate, 3)
+	TlsConfig.Certificates[0], _ = tls.LoadX509KeyPair(conf.API_SITE_TLS, conf.API_SITE_TLS_KEY)
+	TlsConfig.Certificates[1], _ = tls.LoadX509KeyPair(conf.MAIN_SITE_TLS, conf.MAIN_SITE_TLS_KEY)
+	TlsConfig.Certificates[2], _ = tls.LoadX509KeyPair(conf.WWW_SITE_TLS, conf.WWW_SITE_TLS_KEY)
+	TlsConfig.BuildNameToCertificate()
+	return TlsConfig
+}
+
+func HandleTLS(router *mux.Router) {
+	TlsConfig := getTlsConfig()
+	Server := http.Server{
+		TLSConfig: TlsConfig,
+		Handler: router,
+		ReadTimeout: 5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+	TLSListener, _ := tls.Listen("tcp", conf.HTTPS_PORT, TlsConfig)
+	Server.Serve(TLSListener)
+}
+
 
