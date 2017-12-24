@@ -113,7 +113,7 @@ func ValidateToken(token string) (int, *conf.ApiResponse) {
 	userID := -1
 	err := src.Connection.Connection.QueryRow("SELECT user_id FROM sessions WHERE token=?", token).Scan(&userID)
 	if err != nil {
-		return userID, conf.ERROR_DATABASE_REQUEST_INVALID_101
+		return userID, conf.ERROR_TOKEN_INVALID_401
 	}
 	if userID == -1 {
 		return userID, conf.ERROR_TOKEN_INVALID_401

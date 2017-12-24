@@ -28,10 +28,13 @@
         password: ''
       }
     },
+    created () {
+      if (this.$cookie.get('sid')) {
+        this.$router.push({name: 'panel_main'})
+      }
+    },
     methods: {
       authorize () {
-        console.log(this)
-        console.log(this.login)
         if (this.login.length < 3) {
           this.$snotify.error('Логин короче 3 символов', 'Ошибка!', {
             timeout: 2000,
@@ -69,9 +72,11 @@
                 })
                 /*eslint-enable */
               }
+              this.$cookie.set('sid', resp.data.message.token, {expires: 31, secure: true})
+              this.$router.push({name: 'panel_main'})
               resolve({
                 title: 'Успешно',
-                body: resp.data.message.token,
+                body: 'Авторизация успешна',
                 config: {
                   closeOnClick: true,
                   timeout: 2000,
@@ -109,7 +114,7 @@
     align-items: center;
     height: 100vh;
     width: 100vw;
-    background-color: #3498db
+    background-image: url('../assets/images/axioma.jpg');
   }
 
   .signIn__form {
