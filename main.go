@@ -47,9 +47,6 @@ func main() {
 	src.Connection.Connect()
 	src.Connection.Sync()
 
-	src.Connection.Connection.Create(&src.Unit{Name: "Аксиома", Type: 0})
-	src.Connection.Connection.Create(&src.User{Name: "никита", Surname: "иванов", Patronymic: "сергеевич", Password: "OTUxMjM2NTdObqafc8yiOprFyLVn3BhadW6XyYIWT-JYWeDR3MFHXICmFbISOvH1-UwR4-lALDrFWPUAGZ2VttPjAXWFhigdzSY=", Login: "De1ay", Role: 0, UnitID: 1})
-
 	go HandleTLS(router)
 	http.ListenAndServe(conf.HTTP_PORT, router)
 }
