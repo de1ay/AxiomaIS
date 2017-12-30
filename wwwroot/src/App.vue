@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <router-view/>
-    <vue-snotify class="axiomais_panel_notifications"></vue-snotify>
+    <vue-snotify class="panel_notifications"></vue-snotify>
   </div>
 </template>
 
@@ -28,6 +28,6 @@ export default {
     min-width: 100vw;
   }
 
-  .axiomais_panel_notifications { z-index: 100000 }
+  .panel_notifications { z-index: 100000 }
 
 </style>

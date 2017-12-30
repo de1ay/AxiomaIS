@@ -24,7 +24,8 @@ SetHeaders_API writes security HTTP-headers (X-XSS-Protection, Referrer-Policy, 
 */
 func SetHeaders_API_POST(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Method", "POST")
+	w.Header().Set("Access-Control-Allow-Method", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Security-Policy", "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'unsafe-inline'")
 	w.Header().Set("X-XSS-Protection", "1; mode=block")

@@ -7,7 +7,7 @@
 <script>
     import 'vue-awesome/icons/cog'
     export default {
-      name: 'PanelPreloader'
+      name: 'panelPreloader'
     }
 </script>
 

@@ -24,6 +24,7 @@ func (apiResponse *ApiResponse) Execute(responseWriter http.ResponseWriter) {
 // 100
 var ERROR_DATABASE_CONNECTION_CREATION_100 = &ApiResponse{100, "error", "Ошибка соединения с базой данных"}
 var ERROR_DATABASE_REQUEST_INVALID_101 = &ApiResponse{101, "error", "Ошибка соединения с базой данных"}
+var ERROR_DATA_FORMAT_INVALID_102 = &ApiResponse{102, "error", "Неверный формат входных данных"}
 
 // 200
 var REQUEST_SUCCESS_200 = &ApiResponse{200, "success", "Запрос успешно выполнен"}

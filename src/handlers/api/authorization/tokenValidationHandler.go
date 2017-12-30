@@ -10,7 +10,7 @@ import (
 	"axioma/src/handlers"
 )
 
-func GetToken(r *http.Request) string{
+func getToken(r *http.Request) string{
 	token, _ := url.QueryUnescape(strings.TrimSpace(strings.ToLower(r.FormValue("token"))))
 	return token
 }
@@ -19,10 +19,12 @@ func tokenValidationHandler(responseWriter http.ResponseWriter, r *http.Request)
 	handlers.SetHeaders_API_GET(responseWriter)
 	if r.Method == http.MethodGet {
 		responseWriter.WriteHeader(http.StatusOK)
-		_, err := authorization.ValidateToken(GetToken(r)); if err != nil {
+		user, err := authorization.ValidateToken(getToken(r)); if err != nil {
 			err.Execute(responseWriter)
 		} else {
-			conf.REQUEST_SUCCESS_200.Execute(responseWriter)
+			//conf.REQUEST_SUCCESS_200.Execute(responseWriter)
+			resp := &conf.ApiResponse{200, "success", &user}
+			resp.Execute(responseWriter)
 		}
 	} else {
 		responseWriter.WriteHeader(http.StatusMethodNotAllowed)

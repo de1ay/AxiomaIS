@@ -27,13 +27,6 @@ func (authData *AuthData) Authorize(responseWriter http.ResponseWriter) {
 	response.Execute(responseWriter)
 }
 
-func (authData *AuthData) getPasswordHash() string {
-	hasher := sha3.New512()
-	passwordBytes := []byte(authData.Password)
-	passwordHashBytes := hasher.Sum(passwordBytes)
-	return base64.URLEncoding.EncodeToString(passwordHashBytes)
-}
-
 func (authData *AuthData) validate() *conf.ApiResponse {
 	err := authData.validateData(); if err != nil {
 		return err
@@ -51,13 +44,13 @@ func (authData *AuthData) validateData() *conf.ApiResponse {
 }
 
 func (authData *AuthData) validatePassword() *conf.ApiResponse {
-	userID := -1
-	passwordHash := authData.getPasswordHash()
-	err := src.Connection.Connection.QueryRow("SELECT id FROM users WHERE login=? AND password=?", authData.Login, passwordHash).Scan(&userID)
-	if err != nil || userID == -1  {
+	var user src.User
+	passwordHash := GetHash(authData.Password)
+	err := src.Connection.Connection.Where("login=? AND password=?", authData.Login, passwordHash).First(&user).Error
+	if err != nil  {
 		return conf.ERROR_LOGIN_301
 	}
-	authData.UserID = userID
+	authData.UserID = int(user.ID)
 	return nil
 }
 
@@ -75,11 +68,8 @@ func (authData *AuthData) createSession() *conf.ApiResponse {
 	validation := authData.validateSessionsOverflow(); if validation != nil {
 		return validation
 	}
-	dbRequest, err := src.Connection.Connection.Prepare("INSERT INTO sessions(user_id, token) VALUES (?, ?)")
+	err := src.Connection.Connection.Create(&src.Session{UserID: uint(authData.UserID), Token: token}).Error
 	if err != nil {
-		return conf.ERROR_DATABASE_REQUEST_INVALID_101
-	}
-	_, err = dbRequest.Exec(authData.UserID, token); if err != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
 	return &conf.ApiResponse{200, "success", ApiResponseAuthorizationSuccess{token}}
@@ -87,7 +77,7 @@ func (authData *AuthData) createSession() *conf.ApiResponse {
 
 func (authData *AuthData) validateSessionsOverflow() *conf.ApiResponse {
 	var count int
-	err := src.Connection.Connection.QueryRow("SELECT COUNT(token) as count FROM sessions WHERE user_id=?", authData.UserID).Scan(&count)
+	err := src.Connection.Connection.Model(&src.Session{}).Where("user_id=?", authData.UserID).Count(&count).Error
 	if err != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
@@ -99,25 +89,31 @@ func (authData *AuthData) validateSessionsOverflow() *conf.ApiResponse {
 }
 
 func (authData *AuthData) deleteOldestSession() *conf.ApiResponse {
-	dbRequest, err := src.Connection.Connection.Prepare("DELETE FROM sessions WHERE user_id=? ORDER BY start_time ASC LIMIT 1")
+	err := src.Connection.Connection.Where("user_id=?", authData.UserID).Limit(1).Delete(&src.Session{}).Error
 	if err != nil {
-		return conf.ERROR_DATABASE_REQUEST_INVALID_101
-	}
-	_, err = dbRequest.Exec(authData.UserID); if err != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
 	return nil
 }
 
-func ValidateToken(token string) (int, *conf.ApiResponse) {
-	userID := -1
-	err := src.Connection.Connection.QueryRow("SELECT user_id FROM sessions WHERE token=?", token).Scan(&userID)
-	if err != nil {
-		return userID, conf.ERROR_TOKEN_INVALID_401
+func ValidateToken(token string) (src.User, *conf.ApiResponse) {
+	var user src.User
+	var session src.Session
+	err := src.Connection.Connection.Where("token=?", token).First(&session).Error; if err != nil {
+		return user, conf.ERROR_TOKEN_INVALID_401
 	}
-	if userID == -1 {
-		return userID, conf.ERROR_TOKEN_INVALID_401
-	} else {
-		return userID, nil
+	err = src.Connection.Connection.Model(&session).Related(&user).Error; if err != nil {
+		return user, conf.ERROR_TOKEN_INVALID_401
 	}
+	err = src.Connection.Connection.Model(&user).Related(&user.Unit).Error; if err != nil {
+		return user, conf.ERROR_TOKEN_INVALID_401
+	}
+	return user, nil
+}
+
+func GetHash(str string) string {
+	hasher := sha3.New512()
+	passwordBytes := []byte(str)
+	passwordHashBytes := hasher.Sum(passwordBytes)
+	return base64.URLEncoding.EncodeToString(passwordHashBytes)
 }
