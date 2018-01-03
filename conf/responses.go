@@ -21,10 +21,13 @@ func (apiResponse *ApiResponse) Execute(responseWriter http.ResponseWriter) {
 	fmt.Fprintf(responseWriter, apiResponse.toJSON())
 }
 
+func InvalidField(fieldName string) *ApiResponse {
+	return &ApiResponse{501, "error", "Значение поля '" + fieldName + "' - неверно!"}
+}
+
 // 100
 var ERROR_DATABASE_CONNECTION_CREATION_100 = &ApiResponse{100, "error", "Ошибка соединения с базой данных"}
 var ERROR_DATABASE_REQUEST_INVALID_101 = &ApiResponse{101, "error", "Ошибка соединения с базой данных"}
-var ERROR_DATA_FORMAT_INVALID_102 = &ApiResponse{102, "error", "Неверный формат входных данных"}
 
 // 200
 var REQUEST_SUCCESS_200 = &ApiResponse{200, "success", "Запрос успешно выполнен"}
@@ -39,3 +42,7 @@ var ERROR_PASSWORD_SHORT_303 = &ApiResponse{303, "error", "Пароль не м�
 var ERROR_ACCESS_400 = &ApiResponse{400, "error", "Недостаточно прав"}
 var ERROR_TOKEN_INVALID_401 = &ApiResponse{401, "error", "Неверный токен"}
 var ERROR_METHOD_NOT_ALLOWED_402 = &ApiResponse{402, "error", "Метод запрещён"}
+
+// 500
+var ERROR_DATA_FORMAT_INVALID_500 = &ApiResponse{500, "error", "Неверный формат входных данных"}
+// 501 - InvalidField (Dynamic generation)

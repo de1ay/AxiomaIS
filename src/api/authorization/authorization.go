@@ -105,8 +105,17 @@ func ValidateToken(token string) (src.User, *conf.ApiResponse) {
 	err = src.Connection.Connection.Model(&session).Related(&user).Error; if err != nil {
 		return user, conf.ERROR_TOKEN_INVALID_401
 	}
-	err = src.Connection.Connection.Model(&user).Related(&user.Unit).Error; if err != nil {
-		return user, conf.ERROR_TOKEN_INVALID_401
+	if user.FranchiseID != 0 {
+		err = src.Connection.Connection.Model(&user).Related(user.Franchise).Error;
+		if err != nil {
+			return user, conf.ERROR_TOKEN_INVALID_401
+		}
+	}
+	if user.ClinicID != 0 {
+		err = src.Connection.Connection.Model(&user).Related(user.Clinic).Error;
+		if err != nil {
+			return user, conf.ERROR_TOKEN_INVALID_401
+		}
 	}
 	return user, nil
 }

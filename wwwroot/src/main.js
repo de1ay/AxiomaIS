@@ -8,6 +8,7 @@ import VueGoodTable from 'vue-good-table'
 import VueCharts from 'vue-charts'
 import Multiselect from 'vue-multiselect'
 import Snotify from 'vue-snotify'
+import VueTheMask from 'vue-the-mask'
 
 let VueCookie = require('vue-cookie')
 
@@ -18,6 +19,7 @@ Vue.use(VueCookie)
 Vue.use(VueGoodTable)
 Vue.use(VueCharts)
 Vue.use(Snotify)
+Vue.use(VueTheMask)
 
 /* eslint-disable no-new */
 new Vue({

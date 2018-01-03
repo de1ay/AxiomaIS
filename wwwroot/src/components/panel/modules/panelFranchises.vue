@@ -31,6 +31,10 @@
           {
             label: 'Название',
             field: 'name'
+          },
+          {
+            label: 'Телефон',
+            field: 'number'
           }
         ]
       }

@@ -6,20 +6,22 @@ import (
 	"axioma/src"
 )
 
-func UpdateClinic(token string, newClinic src.Unit) *conf.ApiResponse {
+func UpdateClinic(token string, newClinic src.Clinic) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type != 0 {
+	if user.Role == 7 || user.Role == 8 || (user.Role != 0 && user.Role != 1 && user.Role != 6 && user.FranchiseID != newClinic.FranchiseID ) {
 		return conf.ERROR_ACCESS_400
 	}
-	var clinic src.Unit
+	var clinic src.Clinic
 	dbErr := src.Connection.Connection.Find(&clinic, newClinic.ID).Error; if dbErr != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
+	clinic.ID = newClinic.ID
 	clinic.Name = newClinic.Name
-	clinic.Type = newClinic.Type
-	clinic.Parent = newClinic.Parent
+	clinic.City = newClinic.City
+	clinic.Address = newClinic.Address
+	clinic.IsActive = newClinic.IsActive
 	dbErr = src.Connection.Connection.Save(&clinic).Error; if dbErr != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}

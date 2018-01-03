@@ -1,6 +1,7 @@
 <template>
   <div id="panel_modal" @click="hideModal">
     <div class="modal">
+      <button class="panel_modal-button-hide" @click="hideModal({}, true)">Закрыть</button>
       <component
         :is="modal_name"
         :franchises.sync="franchises"
@@ -190,11 +191,14 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/clinic.add', '' +
-              'token=' + this.token +
-              '&name=' + clinic.name +
-              '&parent=' + clinic.parent
-            ).then(resp => {
+            axios.post('https://api.axiomais.ru/clinics/', {
+              token: this.token,
+              name: clinic.name,
+              address: clinic.address,
+              is_active: clinic.is_active,
+              city: clinic.city,
+              franchise_id: clinic.franchise_id
+            }).then(resp => {
               if (resp.data.code !== 200) {
                 /*eslint-disable */
                 reject({
@@ -208,19 +212,21 @@
                   }
                 })
                 /*eslint-enable */
+              } else {
+                clinic.id = resp.data.message.id
+                this.clinics.push(clinic)
+                this.$emit('update:clinics', this.clinics)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Клиника добавлена',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
               }
-              this.clinics.push(resp.data.message)
-              this.$emit('update:clinics', this.clinics)
-              resolve({
-                title: 'Успешно',
-                body: 'Клиника добавлена',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
             }).catch(resp => {
               /*eslint-disable */
               reject({
@@ -244,13 +250,15 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/clinic.update', '' +
-              'token=' + this.token +
-              '&id=' + newClinic.id +
-              '&name=' + newClinic.name +
-              '&type=' + newClinic.type +
-              '&parent=' + newClinic.parent
-            ).then(resp => {
+            axios.put('https://api.axiomais.ru/clinics/' + newClinic.id, {
+              token: this.token,
+              id: newClinic.id,
+              name: newClinic.name,
+              address: newClinic.address,
+              is_active: newClinic.is_active,
+              city: newClinic.city,
+              franchise_id: newClinic.franchise_id
+            }).then(resp => {
               if (resp.data.code !== 200) {
                 /*eslint-disable */
                 reject({
@@ -264,19 +272,20 @@
                   }
                 })
                 /*eslint-enable */
+              } else {
+                originalClinic = Object.assign(originalClinic, newClinic)
+                this.$emit('update:clinics', this.clinics)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Клиника изменена',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
               }
-              originalClinic = Object.assign(originalClinic, newClinic)
-              this.$emit('update:clinics', this.clinics)
-              resolve({
-                title: 'Успешно',
-                body: 'Клиника изменена',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
             }).catch(resp => {
               /*eslint-disable */
               reject({
@@ -300,27 +309,47 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/clinic.delete', '' +
-              'token=' + this.token +
-              '&id=' + clinic.id
-            ).then(resp => {
-              this.clinics.splice(this.clinics.indexOf(clinic))
-              this.$emit('update:clinics', this.clinics)
-              resolve({
-                title: 'Успешно',
-                body: 'Медиа-носитель удален',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
+            axios.delete('https://api.axiomais.ru/clinics/' + clinic.id, {
+              token: this.token,
+              id: clinic.id,
+              name: clinic.name,
+              address: clinic.address,
+              is_active: clinic.is_active,
+              city: clinic.city,
+              franchise_id: clinic.franchise_id
+            }).then(resp => {
+              if (resp.data.code !== 200) {
+                /*eslint-disable */
+                reject({
+                  title: 'Ошибка!',
+                  body: resp.data.message,
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
+                /*eslint-enable */
+              } else {
+                this.clinics.splice(this.clinics.indexOf(clinic))
+                this.$emit('update:clinics', this.clinics)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Клиника удалена',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
+              }
             }).catch(resp => {
               /*eslint-disable */
               reject({
                 title: 'Ошибка!',
-                body: 'Медиа-носитель не удален',
+                body: 'Клиника не удалена',
                 config: {
                   closeOnClick: true,
                   timeout: 2000,
@@ -513,10 +542,26 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/franchise.add',
-              'token=' + this.token +
-              '&name=' + franchise.name
-            ).then(resp => {
+            axios.post('https://api.axiomais.ru/franchises', {
+              token: this.token,
+              name: franchise.name,
+              official_name: franchise.official_name,
+              full_official_name: franchise.full_official_name,
+              license: franchise.license,
+              city: franchise.city,
+              legal_address: franchise.legal_address,
+              inn: franchise.inn,
+              kpp: franchise.kpp,
+              bank_account: franchise.bank_account,
+              bank: franchise.bank,
+              correspondent_account: franchise.correspondent_account,
+              bik: franchise.bik,
+              ogrn: franchise.ogrn,
+              okved: franchise.okved,
+              act: franchise.act,
+              correspondent_address: franchise.correspondent_address,
+              number: franchise.number
+            }).then(resp => {
               if (resp.data.code !== 200) {
                 /*eslint-disable */
                 reject({
@@ -530,19 +575,20 @@
                   }
                 })
                 /*eslint-enable */
+              } else {
+                this.franchises.push(resp.data.message)
+                this.$emit('update:franchises', this.franchises)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Франчайзи добавлен',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
               }
-              this.franchises.push(resp.data.message)
-              this.$emit('update:franchises', this.franchises)
-              resolve({
-                title: 'Успешно',
-                body: 'Франчайз добавлен',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
             }).catch(resp => {
               /*eslint-disable */
               reject({
@@ -566,13 +612,27 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/franchise.update', '' +
-              'token=' + this.token +
-              '&id=' + newFranchise.id +
-              '&name=' + newFranchise.name +
-              '&type=' + newFranchise.type +
-              '&parent=' + newFranchise.parent
-            ).then(resp => {
+            axios.put('https://api.axiomais.ru/franchises/' + newFranchise.id, {
+              token: this.token,
+              id: newFranchise.id,
+              name: newFranchise.name,
+              official_name: newFranchise.official_name,
+              full_official_name: newFranchise.full_official_name,
+              license: newFranchise.license,
+              city: newFranchise.city,
+              legal_address: newFranchise.legal_address,
+              inn: newFranchise.inn,
+              kpp: newFranchise.kpp,
+              bank_account: newFranchise.bank_account,
+              bank: newFranchise.bank,
+              correspondent_account: newFranchise.correspondent_account,
+              bik: newFranchise.bik,
+              ogrn: newFranchise.ogrn,
+              okved: newFranchise.okved,
+              act: newFranchise.act,
+              correspondent_address: newFranchise.correspondent_address,
+              number: newFranchise.number
+            }).then(resp => {
               if (resp.data.code !== 200) {
                 /*eslint-disable */
                 reject({
@@ -586,18 +646,19 @@
                   }
                 })
                 /*eslint-enable */
+              } else {
+                originalFranchise = Object.assign(originalFranchise, newFranchise)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Франчайзи изменёна',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
               }
-              originalFranchise = Object.assign(originalFranchise, newFranchise)
-              resolve({
-                title: 'Успешно',
-                body: 'Франчайз изменён',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
             }).catch(resp => {
               /*eslint-disable */
               reject({
@@ -621,10 +682,29 @@
           'Запрос выполняется',
           'Подождите...',
           () => new Promise((resolve, reject) => {
-            axios.post('https://api.axiomais.ru/franchise.delete', '' +
-              'token=' + this.token +
-              '&id=' + franchise.id
-            ).then(resp => {
+            axios.delete('https://api.axiomais.ru/franchises/' + franchise.id, {
+              data: {
+                token: this.token,
+                id: franchise.id,
+                name: franchise.name,
+                official_name: franchise.official_name,
+                full_official_name: franchise.full_official_name,
+                license: franchise.license,
+                city: franchise.city,
+                legal_address: franchise.legal_address,
+                inn: franchise.inn,
+                kpp: franchise.kpp,
+                bank_account: franchise.bank_account,
+                bank: franchise.bank,
+                correspondent_account: franchise.correspondent_account,
+                bik: franchise.bik,
+                ogrn: franchise.ogrn,
+                okved: franchise.okved,
+                act: franchise.act,
+                correspondent_address: franchise.correspondent_address,
+                number: franchise.number
+              }
+            }).then(resp => {
               if (resp.data.code !== 200) {
                 /*eslint-disable */
                 reject({
@@ -638,19 +718,20 @@
                   }
                 })
                 /*eslint-enable */
+              } else {
+                this.franchises.splice(this.franchises.indexOf(franchise))
+                this.$emit('update:franchises', this.franchises)
+                resolve({
+                  title: 'Успешно',
+                  body: 'Франчайзи удалена',
+                  config: {
+                    closeOnClick: true,
+                    timeout: 2000,
+                    showProgressBar: true,
+                    pauseOnHover: true
+                  }
+                })
               }
-              this.franchises.splice(this.franchises.indexOf(franchise))
-              this.$emit('update:franchises', this.franchises)
-              resolve({
-                title: 'Успешно',
-                body: 'Франчайз удален',
-                config: {
-                  closeOnClick: true,
-                  timeout: 2000,
-                  showProgressBar: true,
-                  pauseOnHover: true
-                }
-              })
             }).catch(resp => {
               /*eslint-disable */
               reject({
@@ -676,38 +757,57 @@
 <style>
 
     #panel_modal {
-        z-index: 1000;
-        position: fixed;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      position: fixed;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
     }
 
     .modal {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-width: 350px;
-        min-height: 200px;
-        border-radius: 5px;
-        background: #ecf0f1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 100px 0;
+      min-width: 400px;
+      min-height: 200px;
+      border-radius: 5px;
+      background: #ecf0f1;
     }
 
+    #panel_modal .modal .panel_modal-button-hide {
+      margin-top: 30px;
+      width: 350px;
+      height: 38px;
+      border-radius: 5px;
+      border: none;
+      background-color: #e74c3c;
+      text-transform: uppercase;
+      color: #fff;
+      font-size: 18px;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    #panel_modal .modal .panel_modal-button-hide:hover { background: #c0392b; }
+
     #panel_modal .form-field {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        margin: 15px 0;
-        width: 300px;
-        height: 38px;
-        border-radius: 5px;
-        background-color: #ffffff;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin: 15px 0;
+      width: 350px;
+      height: 38px;
+      border-radius: 5px;
+      background-color: #ffffff;
     }
 
     #panel_modal .form-field--border {
@@ -727,7 +827,8 @@
     }
 
     #panel_modal .form-field .form-field__input {
-        width: 240px;
+      margin-right: 10px;
+        width: 290px;
         height: 35px;
         font-size: 18px;
         color: #95a5a6;

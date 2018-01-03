@@ -10,17 +10,16 @@ func GetClinics(token string) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type == 2 {
+	if user.Role == 7 || user.Role == 8 {
 		return conf.ERROR_ACCESS_400
 	}
-	var clinics []src.Unit
-	if user.Unit.Type == 0 {
-		dbErr := src.Connection.Connection.Where("type=?", 2).Find(&clinics).Error;
-		if dbErr != nil {
+	var clinics []src.Clinic
+	if user.Role == 0 || user.Role == 1 || user.Role == 6 {
+		dbErr := src.Connection.Connection.Find(&clinics).Error; if dbErr != nil {
 			return conf.ERROR_DATABASE_REQUEST_INVALID_101
 		}
 	} else {
-		dbErr := src.Connection.Connection.Where("type=? AND parent=?", 2, user.Unit.ID).Find(&clinics).Error;
+		dbErr := src.Connection.Connection.Where("franchise_id=?", user.FranchiseID).Find(&clinics).Error
 		if dbErr != nil {
 			return conf.ERROR_DATABASE_REQUEST_INVALID_101
 		}
@@ -29,13 +28,11 @@ func GetClinics(token string) *conf.ApiResponse {
 		dbErr := src.Connection.Connection.Model(&clinics[i]).Related(&clinics[i].Users).Error; if dbErr != nil {
 			return conf.ERROR_DATABASE_REQUEST_INVALID_101
 		}
+		dbErr = src.Connection.Connection.Model(&clinics[i]).Related(&clinics[i].Franchise).Error; if dbErr != nil {
+			return conf.ERROR_DATABASE_REQUEST_INVALID_101
+		}
 		for k, _ := range clinics[i].Users {
-			clinics[i].Users[k].Unit = src.Unit{
-				ID: clinics[i].ID,
-				Name: clinics[i].Name,
-				Type: clinics[i].Type,
-				Parent: clinics[i].Parent,
-			}
+			clinics[i].Users[k].Clinic = nil
 		}
 	}
 	return &conf.ApiResponse{200, "success", clinics}

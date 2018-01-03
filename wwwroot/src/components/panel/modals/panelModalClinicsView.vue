@@ -1,25 +1,53 @@
 <template>
     <form id="panel_modal_clinics">
-        <div class="form-field">
-          <input
-            class="form-field__input"
-            v-model.trim="editable_data.name"
-            type="text"
-            placeholder="Название">
-          <icon name="plus-circle" scale="1.2" class="form-field__icon--tv"></icon>
-        </div>
-        <div class="form-field">
-          <multiselect
-            class="form-field__input"
-            v-model="editable_data.parent_info"
-            :options="franchises"
-            label="name"
-            track-by="id"
-            :allow-empty="false"
-            :show-labels="false"
-            placeholder="Франчайз"></multiselect>
-          <icon name="building" scale="1.2" class="form-field__icon--handshake"></icon>
-        </div>
+      <div class="form-field">
+        <input
+          class="form-field__input"
+          v-model.trim="editable_data.name"
+          type="text"
+          placeholder="Название">
+        <icon name="plus-circle" scale="1.2"></icon>
+      </div>
+      <div class="form-field">
+        <multiselect
+          class="form-field__input"
+          v-model="editable_data.franchise"
+          :options="franchises"
+          label="name"
+          track-by="id"
+          :allow-empty="false"
+          :show-labels="false"
+          placeholder="Франчайзи"></multiselect>
+        <icon name="building" scale="1.2"></icon>
+      </div>
+      <div class="form-field">
+        <input
+          class="form-field__input"
+          v-model.trim="editable_data.city"
+          type="text"
+          placeholder="Город">
+        <icon name="industry" scale="1.2"></icon>
+      </div>
+      <div class="form-field">
+        <input
+          class="form-field__input"
+          v-model.trim="editable_data.address"
+          type="text"
+          placeholder="Адрес">
+        <icon name="map" scale="1.2"></icon>
+      </div>
+      <div class="form-field">
+        <multiselect
+          class="form-field__input"
+          v-model="editable_data.active_info"
+          :options="billing_options"
+          track-by="id"
+          label="label"
+          :allow-empty="false"
+          :show-labels="false"
+          placeholder="Может принимать оплату"></multiselect>
+        <icon name="money" scale="1.2"></icon>
+      </div>
         <div class="form-field__actions">
           <button class="form-field__edit" @click.prevent="editClinicConfirm">Изменить</button>
           <button class="form-field__delete" @click.prevent="deleteClinicConfirm">Удалить</button>
@@ -36,13 +64,19 @@
     props: ['franchises', 'staff', 'clinics', 'additional_data'],
     data () {
       return {
-        editable_data: Object.assign({}, this.additional_data)
+        editable_data: Object.assign({}, this.additional_data),
+        billing_options: [
+          {'id': true, 'label': 'Да'},
+          {'id': false, 'label': 'Нет'}
+        ]
       }
     },
     created () {
-      this.editable_data.parent_info = this.franchises.filter(franchise => {
-        return franchise.id === this.editable_data.parent
-      })[0]
+      if (this.additional_data.is_active === true) {
+        this.editable_data.active_info = {'id': true, 'label': 'Да'}
+      } else {
+        this.editable_data.active_info = {'id': false, 'label': 'Нет'}
+      }
     },
     methods: {
       editClinicConfirm () {
@@ -58,7 +92,8 @@
         })
       },
       editClinic () {
-        this.editable_data.parent = this.editable_data.parent_info.id
+        this.editable_data.is_active = this.editable_data.active_info.id
+        this.editable_data.franchise_id = this.editable_data.franchise.id
         this.$emit('editClinic', this.editable_data, this.additional_data)
       },
       deleteClinicConfirm () {
@@ -126,7 +161,7 @@
         justify-content: space-between;
         align-items: center;
         margin: 15px 0 30px 0;
-        width: 300px;
+        width: 350px;
     }
 
 </style>

@@ -6,13 +6,11 @@ import (
 	"axioma/src/api/authorization"
 )
 
-// TODO: check parent unit
-
-func AddClinic(token string, clinic src.Unit) *conf.ApiResponse {
+func AddClinic(token string, clinic src.Clinic) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type != 0 {
+	if user.Role == 7 || user.Role == 8 || (user.Role != 0 && user.Role != 1 && user.Role != 6 && user.FranchiseID != clinic.FranchiseID ) {
 		return conf.ERROR_ACCESS_400
 	}
 	dbErr := src.Connection.Connection.Create(&clinic).Error; if dbErr != nil {

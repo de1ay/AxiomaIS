@@ -115,6 +115,7 @@
     height: 100vh;
     width: 100vw;
     background-image: url('../assets/images/axioma.jpg');
+    background-size: cover;
   }
 
   .signIn__form {

@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"axioma/src/api/authorization"
 	"axioma/src/handlers"
-	"axioma/conf"
 )
 
 func getAuthorizationData(r *http.Request) authorization.AuthData{
@@ -16,17 +15,12 @@ func getAuthorizationData(r *http.Request) authorization.AuthData{
 }
 
 func loginAndPasswordAuthHandler(responseWriter http.ResponseWriter, r *http.Request){
-	handlers.SetHeaders_API_GET(responseWriter)
-	if r.Method == http.MethodGet {
-		responseWriter.WriteHeader(http.StatusOK)
-		authData := getAuthorizationData(r)
-		authData.Authorize(responseWriter)
-	} else {
-		responseWriter.WriteHeader(http.StatusMethodNotAllowed)
-		conf.ERROR_METHOD_NOT_ALLOWED_402.Execute(responseWriter)
-	}
+	handlers.SetHeaders_API(responseWriter)
+	responseWriter.WriteHeader(http.StatusOK)
+	authData := getAuthorizationData(r)
+	authData.Authorize(responseWriter)
 }
 
 func HandleAuthorization(router *mux.Router)  {
-	router.HandleFunc("/token.get", loginAndPasswordAuthHandler)
+	router.HandleFunc("/token.get", loginAndPasswordAuthHandler).Methods("GET")
 }

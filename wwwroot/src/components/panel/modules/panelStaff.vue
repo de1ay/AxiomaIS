@@ -1,6 +1,6 @@
 <template>
   <div id="panel_media">
-    <b>Раздел находится в переработке, релиз 1-2 января.</b>
+    <b>Раздел находится в переработке, релиз вчером 3го января - уторм 4го.</b>
     <div class="media">
       <vue-good-table
         :columns="media_columns"

@@ -5,26 +5,11 @@ import (
 )
 
 /*
-SetHeaders_API writes security HTTP-headers (X-XSS-Protection, Referrer-Policy, e.t.c) for API site (GET requests)
-*/
-func SetHeaders_API_GET(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Method", "GET")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Security-Policy", "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'unsafe-inline'")
-	w.Header().Set("X-XSS-Protection", "1; mode=block")
-	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
-	w.Header().Set("Referrer-Policy", "no-referrer")
-}
-
-/*
 SetHeaders_API writes security HTTP-headers (X-XSS-Protection, Referrer-Policy, e.t.c) for API site (POST-requests)
 */
-func SetHeaders_API_POST(w http.ResponseWriter) {
+func SetHeaders_API(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Method", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Security-Policy", "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'unsafe-inline'")

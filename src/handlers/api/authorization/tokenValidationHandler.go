@@ -16,22 +16,17 @@ func getToken(r *http.Request) string{
 }
 
 func tokenValidationHandler(responseWriter http.ResponseWriter, r *http.Request){
-	handlers.SetHeaders_API_GET(responseWriter)
-	if r.Method == http.MethodGet {
-		responseWriter.WriteHeader(http.StatusOK)
-		user, err := authorization.ValidateToken(getToken(r)); if err != nil {
-			err.Execute(responseWriter)
-		} else {
-			//conf.REQUEST_SUCCESS_200.Execute(responseWriter)
-			resp := &conf.ApiResponse{200, "success", &user}
-			resp.Execute(responseWriter)
-		}
+	handlers.SetHeaders_API(responseWriter)
+	responseWriter.WriteHeader(http.StatusOK)
+	user, err := authorization.ValidateToken(getToken(r)); if err != nil {
+		err.Execute(responseWriter)
 	} else {
-		responseWriter.WriteHeader(http.StatusMethodNotAllowed)
-		conf.ERROR_METHOD_NOT_ALLOWED_402.Execute(responseWriter)
+		//conf.REQUEST_SUCCESS_200.Execute(responseWriter)
+		resp := &conf.ApiResponse{200, "success", &user}
+		resp.Execute(responseWriter)
 	}
 }
 
 func HandleTokenValidation(router *mux.Router)  {
-	router.HandleFunc("/token.verify", tokenValidationHandler)
+	router.HandleFunc("/token.verify", tokenValidationHandler).Methods("GET")
 }

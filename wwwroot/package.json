@@ -30,7 +30,8 @@
     "vue-multiselect": "^2.0.3",
     "vue-router": "^2.8.1",
     "vue-select": "^2.3.0",
-    "vue-snotify": "^2.0.3"
+    "vue-snotify": "^2.0.3",
+    "vue-the-mask": "^0.11.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

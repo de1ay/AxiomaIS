@@ -1,48 +1,90 @@
 <template>
-    <form id="panel_modal_clinics">
-        <div class="form-field">
-            <input
-            class="form-field__input"
-            v-model.trim="name"
-            type="text"
-            placeholder="Название">
-            <icon name="plus-circle" scale="1.2" class="form-field__icon--tv"></icon>
-        </div>
-        <div class="form-field">
-          <multiselect
-            class="form-field__input"
-            v-model="parent"
-            :options="franchises"
-            label="name"
-            track-by="id"
-            :allow-empty="false"
-            :show-labels="false"
-            placeholder="Франчайз"></multiselect>
-          <icon name="building" scale="1.2" class="form-field__icon--handshake"></icon>
-        </div>
-        <div class="form-field__actions">
-            <input class="form-field__submit" @click.prevent="addClinic" type="submit" value="Создать"/>
-        </div>
-    </form>
+  <form id="panel_modal_clinics">
+    <div class="form-field">
+        <input
+        class="form-field__input"
+        v-model.trim="name"
+        type="text"
+        placeholder="Название">
+        <icon name="plus-circle" scale="1.2"></icon>
+    </div>
+    <div class="form-field">
+      <multiselect
+        class="form-field__input"
+        v-model="franchise"
+        :options="franchises"
+        label="name"
+        track-by="id"
+        :allow-empty="false"
+        :show-labels="false"
+        placeholder="Франчайзи"></multiselect>
+      <icon name="building" scale="1.2"></icon>
+      </div>
+    <div class="form-field">
+      <input
+        class="form-field__input"
+        v-model.trim="city"
+        type="text"
+        placeholder="Город">
+      <icon name="industry" scale="1.2"></icon>
+    </div>
+    <div class="form-field">
+      <input
+        class="form-field__input"
+        v-model.trim="address"
+        type="text"
+        placeholder="Адрес">
+      <icon name="map" scale="1.2"></icon>
+    </div>
+    <div class="form-field">
+      <multiselect
+        class="form-field__input"
+        v-model="active_info"
+        :options="billing_options"
+        track-by="id"
+        label="label"
+        :allow-empty="false"
+        :show-labels="false"
+        placeholder="Может принимать оплату"></multiselect>
+      <icon name="money" scale="1.2"></icon>
+    </div>
+    <div class="form-field__actions">
+        <input class="form-field__submit" @click.prevent="addClinic" type="submit" value="Создать"/>
+    </div>
+  </form>
 </template>
 
 <script>
   import 'vue-awesome/icons/plus-circle'
   import 'vue-awesome/icons/building'
+  import 'vue-awesome/icons/money'
+  import 'vue-awesome/icons/map'
+  import 'vue-awesome/icons/industry'
   export default {
     name: 'panelModalClinicAdd',
     props: ['franchises', 'clinics', 'staff'],
     data () {
       return {
         name: '',
-        parent: ''
+        franchise: '',
+        address: '',
+        active_info: '',
+        city: '',
+        billing_options: [
+          {'id': true, 'label': 'Да'},
+          {'id': false, 'label': 'Нет'}
+        ]
       }
     },
     methods: {
       addClinic () {
         this.$emit('addClinic', {
           name: this.name,
-          parent: this.parent.id
+          address: this.address,
+          is_active: this.active_info.id,
+          city: this.city,
+          franchise: this.franchise,
+          franchise_id: this.franchise.id
         })
       }
     }
@@ -82,7 +124,7 @@
         justify-content: flex-start;
         align-items: center;
         margin: 15px 0 30px 0;
-        width: 300px;
+        width: 350px;
     }
 
 </style>

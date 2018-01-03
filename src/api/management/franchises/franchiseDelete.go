@@ -10,10 +10,10 @@ func DeleteFranchise(token string, id uint) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type != 0 {
+	if user.Role != 0 && user.Role != 1 && user.Role != 6 && user.Franchise.ID != id {
 		return conf.ERROR_ACCESS_400
 	}
-	dbErr := src.Connection.Connection.Where("id=? AND type=?", id, 1).Delete(&src.Unit{}).Error; if dbErr != nil {
+	dbErr := src.Connection.Connection.Where("id=?", id).Delete(&src.Franchise{}).Error; if dbErr != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
 	return conf.REQUEST_SUCCESS_200

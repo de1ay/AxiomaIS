@@ -13,8 +13,8 @@ import (
 	"time"
 	"axioma/src/handlers/api/authorization"
 	"axioma/src/handlers"
-	"axioma/src/handlers/api/management/clinics"
 	"axioma/src/handlers/api/management/franchises"
+	"axioma/src/handlers/api/management/clinics"
 )
 
 func main() {
@@ -29,15 +29,16 @@ func main() {
 	authorization.HandleAuthorization(apiSite)
 	authorization.HandleTokenValidation(apiSite)
 
-	// Management
-	clinics.HandleGetClinics(apiSite)
-	clinics.HandleAddClinic(apiSite)
-	clinics.HandleUpdateClinic(apiSite)
-	clinics.HandleDeleteClinic(apiSite)
+	// Franchises
 	franchises.HandleGetFranchises(apiSite)
 	franchises.HandleAddFranchise(apiSite)
 	franchises.HandleUpdateFranchise(apiSite)
 	franchises.HandleDeleteFranchise(apiSite)
+	// Clinics
+	clinics.HandleGetClinics(apiSite)
+	clinics.HandleAddClinic(apiSite)
+	clinics.HandleUpdateClinic(apiSite)
+	clinics.HandleDeleteClinic(apiSite)
 
 	// Main site
 	handlers.HandleMainSite(mainSite)

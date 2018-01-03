@@ -6,11 +6,11 @@ import (
 	"axioma/src/api/authorization"
 )
 
-func AddFranchise(token string, franchise src.Unit) *conf.ApiResponse {
+func AddFranchise(token string, franchise src.Franchise) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type != 0 {
+	if user.Role != 0 && user.Role != 1 && user.Role != 6 {
 		return conf.ERROR_ACCESS_400
 	}
 	dbErr := src.Connection.Connection.Create(&franchise).Error; if dbErr != nil {

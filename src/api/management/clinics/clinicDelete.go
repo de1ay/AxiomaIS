@@ -6,14 +6,14 @@ import (
 	"axioma/src"
 )
 
-func DeleteClinic(token string, id uint) *conf.ApiResponse {
+func DeleteClinic(token string, clinic src.Clinic) *conf.ApiResponse {
 	user, err := authorization.ValidateToken(token); if err != nil {
 		return err
 	}
-	if user.Unit.Type != 0 {
+	if user.Role == 7 || user.Role == 8 || (user.Role != 0 && user.Role != 1 && user.Role != 6 && user.FranchiseID != clinic.FranchiseID ) {
 		return conf.ERROR_ACCESS_400
 	}
-	dbErr := src.Connection.Connection.Where("id=? AND type=?", id, 2).Delete(&src.Unit{}).Error; if dbErr != nil {
+	dbErr := src.Connection.Connection.Where("id=?", clinic.ID).Delete(&src.Clinic{}).Error; if dbErr != nil {
 		return conf.ERROR_DATABASE_REQUEST_INVALID_101
 	}
 	return conf.REQUEST_SUCCESS_200

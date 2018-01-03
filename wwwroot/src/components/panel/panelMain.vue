@@ -73,12 +73,12 @@
         modal_name: '',
         additional_data: [],
         modules_headers_headlines: {
-          'panel_franchises': 'Франчайзы',
+          'panel_franchises': 'Франчайзи',
           'panel_clinics': 'Клиники',
           'panel_staff': 'Персонал'
         },
         modules_button_text: {
-          'panel_franchises': 'Новый франчайз',
+          'panel_franchises': 'Новая франчайзи',
           'panel_clinics': 'Новая клиника',
           'panel_staff': 'Новый сотрудник'
         },
@@ -104,12 +104,12 @@
         if (this.$cookie.get('last_page')) {
           this.selected_module = this.$cookie.get('last_page')
         }
-        axios.get('https://api.axiomais.ru/franchises.get?token=' + this.token).then(resp => {
+        axios.get('https://api.axiomais.ru/franchises?token=' + this.token).then(resp => {
           if (resp.data.code === 200) {
             this.franchises = resp.data.message
           }
         })
-        axios.get('https://api.axiomais.ru/clinics.get?token=' + this.token).then(resp => {
+        axios.get('https://api.axiomais.ru/clinics?token=' + this.token).then(resp => {
           if (resp.data.code === 200) {
             this.clinics = resp.data.message
           }

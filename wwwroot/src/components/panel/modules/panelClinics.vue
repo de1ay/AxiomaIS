@@ -31,6 +31,10 @@
           {
             label: 'Название',
             field: 'name'
+          },
+          {
+            label: 'Франчайзи',
+            field: 'franchise.name'
           }
         ]
       }
